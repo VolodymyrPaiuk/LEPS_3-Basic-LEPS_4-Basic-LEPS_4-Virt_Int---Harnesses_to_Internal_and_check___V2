@@ -1,0 +1,44 @@
+import threading
+from PyQt5.QtCore import QThread, pyqtSignal
+import module.Check_modular_V2
+
+class Threading(QThread):
+    processing_progress = pyqtSignal(int)
+    processing_finished = pyqtSignal()
+
+    def __init__(self, uniq_har, Read_harnesses, Rezult, wires_in_prod_mod, Wirelist):
+        QThread.__init__(self)
+        self.uniq_har = uniq_har
+        self.Read_harnesses = Read_harnesses
+        self.Rezult = Rezult
+        self.wires_in_prod_mod = wires_in_prod_mod
+        self.Wirelist = Wirelist
+
+        self.Rezult_of_check = []
+
+    def run(self):
+
+        for i in range(len(self.uniq_har)):
+            # Проходжу циклом для відбору індексів під вязку
+            one_separ_harn_inndex_prev = []
+            for k in self.Read_harnesses:
+                if self.uniq_har[i] == k[0]:
+                    one_separ_harn_inndex_prev.append(k[4])
+            # Видаляю дублікати щоб не було помилки при закиданні однакових вязок
+            one_separ_harn_index = []
+            for k in one_separ_harn_inndex_prev:
+                if k not in one_separ_harn_index:
+                    one_separ_harn_index.append(k)
+            #Проходжу циклом для відбору інтерналів під вязку
+            one_separ_harn_intern = []
+            for k in self.Rezult:
+                if self.uniq_har[i] == k[0]:
+                    one_separ_harn_intern.append(k[1])
+
+            rez_prev = module.Check_modular_V2.Check_modular(self.uniq_har[i], one_separ_harn_intern, self.wires_in_prod_mod, one_separ_harn_index, self.Wirelist)
+            self.Rezult_of_check.extend(rez_prev)
+
+
+            progress = int(((i+1) / len(self.uniq_har)) * 100)
+            self.processing_progress.emit(progress)
+        self.processing_finished.emit()
