@@ -1,0 +1,84 @@
+import sqlite3
+import os
+
+class Database:
+    def __init__(self):
+        # self.parent_directory = os.path.dirname(os.getcwd()) #шлях де створювати бази даних
+        self.name_of_db = "my_database.db"
+        self.connection = None
+        self.cursor = None
+
+    def connect(self):
+        self.connection = sqlite3.connect(self.name_of_db)
+        self.cursor = self.connection.cursor()
+
+    def create_table_db(self, table_name, columns):
+        self.connect()
+        columns_str = ", ".join(columns)    # Формуємо рядок з визначеннями стовпців
+        create_table_query = f'CREATE TABLE IF NOT EXISTS {table_name} ({columns_str})'   # Створюємо SQL-запит для створення таблиці з динамічною кількістю стовпців
+
+        self.cursor.execute(create_table_query)   # Виконуємо SQL-запит
+
+        self.connection.commit()   # Зберігаємо зміни
+
+        self.connection.close()   # Закриваємо підключення
+
+    def insert_record_db(self, table_name, values):
+        self.connect()
+
+        # Формуємо рядок зі значеннями
+        values_str = ", ".join(f"'{value}'" if isinstance(value, str) else str(value) for value in values)
+
+        # Створюємо SQL-запит для вставки запису
+        insert_query = f"INSERT INTO {table_name} VALUES ({values_str})"
+
+        # Виконуємо SQL-запит
+        self.cursor.execute(insert_query)
+
+        # Зберігаємо зміни
+        self.connection.commit()
+
+        self.connection.close()
+
+    def unload_db(self, table_name):
+        self.connect()
+        select_query = f"SELECT * FROM {table_name}"
+        self.cursor.execute(select_query)
+        rows = self.cursor.fetchall()
+        self.connection.close()
+        return rows
+
+    def clear_db(self, table_name):
+        self.connect()
+        clear_table_query = f"DELETE FROM {table_name}"
+        self.cursor.execute(clear_table_query)
+        self.connection.commit()
+        self.connection.close()
+
+
+#==================================
+# Приклад використання
+# table_name = "employees"
+# columns = ["id INTEGER", "name TEXT", "age INTEGER", "salary REAL"]
+#
+# creator = Database()
+# creator.create_table_db(table_name, columns)
+#
+# # Вставка запису в таблицю
+#
+#
+# record_values = [
+#     ["1", "John Smith", "30", "5000.0"],
+#     ["1", "John Smith_2", "30", "5000.0"],
+#     ["1", "John Smith_3", "30", "5000.0"],
+#     ["1", "John Smith_4", "30", "5000.0"]
+# ]
+# for rec in record_values:
+#     creator.insert_record_db(table_name, rec)
+#
+# # Отримання даних з таблиці
+# results = creator.unload_db(table_name)
+# for row in results:
+#     print(row)
+#
+# creator.clear_db(table_name)
