@@ -1,0 +1,69 @@
+import threading
+from PyQt5.QtCore import QThread, pyqtSignal
+import module.Harness_to_Internal_L4VI
+import module.Harness_to_Internal_L3B
+import module.Harness_to_Internal_L4B
+
+class Threading(QThread):
+    processing_progress = pyqtSignal(int)
+    processing_finished = pyqtSignal()
+
+    def __init__(self, uniq_har, Read_harnesses, Read_Basic_Module_L3, only_index_Basic_Module_L3, For_Basic_Module_int_L3, Read_Basic_Module_L4, only_index_Basic_Module_L4, For_Basic_Module_int_L4, Read_Virt, Read_Int, Readed_Int_and_number_of_virt, only_index_virt, radioButton, radioButton_2, radioButton_3):
+        QThread.__init__(self)
+        self.uniq_har = uniq_har
+        self.Read_harnesses = Read_harnesses
+        self.Read_Basic_Module_L3 = Read_Basic_Module_L3
+        self.only_index_Basic_Module_L3 = only_index_Basic_Module_L3
+        self.For_Basic_Module_int_L3 = For_Basic_Module_int_L3
+
+        self.Read_Basic_Module_L4 = Read_Basic_Module_L4
+        self.only_index_Basic_Module_L4 = only_index_Basic_Module_L4
+        self.For_Basic_Module_int_L4 = For_Basic_Module_int_L4
+
+        self.Read_Virt = Read_Virt
+        self.Read_Int = Read_Int
+        self.Readed_Int_and_number_of_virt = Readed_Int_and_number_of_virt
+        self.only_index_virt = only_index_virt
+
+        self.radioButton = radioButton
+        self.radioButton_2 = radioButton_2
+        self.radioButton_3 = radioButton_3
+
+        self.Rezult = []
+        self.Mistakes_harn = []
+
+    def run(self):
+
+        for i in range(len(self.uniq_har)):
+            # Проходжу циклом для відбору окремої вязки в масив
+            one_separ_harn_prev = []
+            for k in self.Read_harnesses:
+                if self.uniq_har[i] == k[0]:
+                    one_separ_harn_prev.append(k)
+            # Видаляю дублікати щоб не було помилки при закиданні однакових вязок
+            one_separ_harn = []
+            for k in one_separ_harn_prev:
+                if k not in one_separ_harn:
+                    one_separ_harn.append(k)
+            rez_prev = []
+            if self.radioButton.isChecked():  # Перевірка з яким LEPS працюємо
+                rez_prev = module.Harness_to_Internal_L3B.Harness_to_Internal(self.uniq_har[i], one_separ_harn,
+                                                                              self.Read_Basic_Module_L3,
+                                                                              self.only_index_Basic_Module_L3,
+                                                                              self.For_Basic_Module_int_L3)
+            elif self.radioButton_2.isChecked():
+                rez_prev = module.Harness_to_Internal_L4B.Harness_to_Internal(self.uniq_har[i], one_separ_harn,
+                                                                              self.Read_Basic_Module_L4,
+                                                                              self.only_index_Basic_Module_L4,
+                                                                              self.For_Basic_Module_int_L4)
+            elif self.radioButton_3.isChecked():
+                rez_prev = module.Harness_to_Internal_L4VI.Harness_to_Internal(self.uniq_har[i], one_separ_harn,
+                                                                               self.Read_Virt, self.Read_Int,
+                                                                               self.Readed_Int_and_number_of_virt,
+                                                                               self.only_index_virt)
+            self.Rezult.extend(rez_prev[0])
+            self.Mistakes_harn.extend(rez_prev[1])
+
+            progress = int(((i+1) / len(self.uniq_har)) * 100)
+            self.processing_progress.emit(progress)
+        self.processing_finished.emit()
