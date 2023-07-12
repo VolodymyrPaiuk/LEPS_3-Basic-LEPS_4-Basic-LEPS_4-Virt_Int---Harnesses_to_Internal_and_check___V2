@@ -1,0 +1,23 @@
+import threading
+from PyQt5.QtCore import QThread, pyqtSignal
+import module.mydatabase
+
+class Threading(QThread):
+    processing_progress = pyqtSignal(int)
+    processing_finished = pyqtSignal()
+
+    def __init__(self, data, db_table):
+        QThread.__init__(self)
+        self.data = data
+        self.db_table = db_table
+
+
+    def run(self):
+
+        db = module.mydatabase.Database()
+        for row in range(len(self.data)):
+            db.insert_record_db(self.db_table, self.data[row])
+
+            progress = int(((row+1) / len(self.data)) * 100)
+            self.processing_progress.emit(progress)
+        self.processing_finished.emit()
