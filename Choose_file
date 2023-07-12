@@ -1,0 +1,37 @@
+import os
+import module.read_record_csv
+# path_harn = 'C://1_disk_D//python//LEPS//Test_harnesses'
+# path_Virt = 'C://1_disk_D//python//LEPS//Virt_X254.csv'
+# path_Intern = 'C://1_disk_D//python//LEPS//Int_X254.csv'
+# path_Wirelist = 'C://1_disk_D//python//LEPS//Wirelist.csv'
+# path_Wires_in_prod_modules = 'C://1_disk_D//python//LEPS//Wires_in_prod_modules.csv'
+
+def choose_harnesses_in_folder (path_harn):
+    harnesses = []
+    not_csv = '1'
+    folder_content = os.listdir(path_harn)
+
+    for i in folder_content:
+        if i[-3:] != 'csv': # Перевірка чи файли в форматі csv
+            not_csv = '0'
+            break
+        one_file = []
+        one_file = module.read_record_csv.read(path_harn + '//' + i)
+        # print(one_file)
+        while_i = 1
+        while while_i < len(one_file):
+            harnesses.append(one_file[while_i])
+            while_i+=1
+    return harnesses, not_csv
+
+def choose_f (path):
+    content = []
+    not_csv ='1'
+
+    if path[-3:] != 'csv':
+        not_csv = '0'
+    elif path[-3:] == 'csv':
+        content = module.read_record_csv.read(path)
+
+    return content, not_csv
+
