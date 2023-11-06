@@ -110,7 +110,7 @@ def Harness_to_Internal (ii, one_separ_harn, Read_Basic_Module, only_index_Basic
     Harn_realiz_BM_index_group = [] # Масив індекс група з реалізованих інтерналів під явязку
     Rezult_int = [] # Масив з реалізованих інтерналів
     for i in Rezult:
-        Rezult_int.append(i[2])
+        Rezult_int.append(i[1])
     for i in Read_Basic_Module:
         if i[0] in Rezult_int:
             Harn_realiz_BM_index_group_prev = []
