@@ -85,7 +85,7 @@ def Harness_to_Internal (ii, one_separ_harn, Read_Basic_Module, only_index_Basic
         for k in max_mas_rel: # проходжу циклом по реалізованих максимумах щоб добавити два чи більше якшо замовились
             Rezult_pre = []
             Rezult_pre.append(ii)
-            Rezult_pre.append(k[2])
+            # Rezult_pre.append(k[2])
             Rezult_pre.append(k[0])
             Rezult.append(Rezult_pre)
 
